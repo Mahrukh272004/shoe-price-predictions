@@ -20,6 +20,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+          pip install pytest  # Install pytest explicitly
           if [ "$RUNNER_OS" == "Windows" ]; then
             pip install pywin32==308
           fi
