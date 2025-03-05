@@ -69,6 +69,10 @@ def test_graphs_generated():
         'actual_vs_predicted.png'
     ]
 
+
+
+
+
     for graph in expected_graphs:
         graph_path = os.path.join(graphs_dir, graph)
         assert os.path.exists(graph_path), f"Graph {graph} not found."
