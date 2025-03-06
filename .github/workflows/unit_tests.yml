@@ -1,13 +1,15 @@
-name: Feature Testing
+name: Automated Testing on PR
 
 on:
   pull_request:
     branches:
-      - master  # Runs feature tests on PR from test to master
+      - test
+    types:
+      - opened
+      - synchronize
 
 jobs:
-  feature-test:
-    name: Run Feature Tests
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,12 +19,13 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.*'  # Use the latest Python 3 version
+          python-version: '3.9'
 
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt  # Install test dependencies
+          pip install -r requirements.txt
+          pip install pytest
 
-      - name: Run Feature Tests
-        run: pytest tests/  # Run all tests inside the 'tests' folder
+      - name: Run Unit Tests
+        run: pytest test.py
