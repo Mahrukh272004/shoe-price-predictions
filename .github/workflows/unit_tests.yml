@@ -33,7 +33,7 @@ jobs:
 
   merge-to-master:
     needs: test
-    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'test'
+    if: github.event.pull_request.merged == true || github.event.pull_request.base.ref == 'test'
     runs-on: ubuntu-latest
     steps:
       - name: Debug event payload
