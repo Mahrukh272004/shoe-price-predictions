@@ -51,7 +51,9 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git checkout master
+          git fetch origin test  # Fetch the test branch
+          git checkout test      # Check out the test branch
+          git checkout master    # Switch back to master
           git merge --no-ff test -m "Merging test branch into master after successful tests"
           if [ $? -ne 0 ]; then
             echo "Merge failed"
