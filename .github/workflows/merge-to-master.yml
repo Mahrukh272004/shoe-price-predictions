@@ -1,10 +1,13 @@
-name: Merge to Master on Successful Tests
+name: Merge `test` into `master` on Successful Tests
 
 on:
   workflow_run:
-    workflows: ["Automated Testing on PR"]
+    workflows: ["Automated Testing on PR"]  
     types:
       - completed
+
+permissions:
+  contents: write  # Allow GitHub Actions to push changes
 
 jobs:
   merge:
@@ -13,6 +16,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PAT_TOKEN }}  # Use the personal access token
 
       - name: Merge `test` into `master`
         run: |
@@ -21,4 +26,4 @@ jobs:
           git fetch origin
           git checkout master
           git merge --no-ff origin/test -m "Auto-merged from test to master"
-          git push origin master
+          git push https://${{ secrets.PAT_TOKEN }}@github.com/Mahrukh272004/shoe-price-predictions.git master
