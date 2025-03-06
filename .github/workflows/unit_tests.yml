@@ -1,7 +1,10 @@
-name: Unit Tests, Merge to Master & Trigger Jenkins
+name: Unit Tests and Merge to Master
 
 on:
   pull_request:
+    branches:
+      - test
+  push:
     branches:
       - test
 
@@ -30,12 +33,13 @@ jobs:
 
   merge-to-master:
     needs: test
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'test'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.NOTGITHUB_TOKEN }}  # Ensure this secret exists in GitHub
+          token: ${{ secrets.GITHUB_TOKEN }}  # Use the default GITHUB_TOKEN
 
       - name: Merge test into master
         run: |
@@ -43,9 +47,12 @@ jobs:
           git config --global user.email "actions@github.com"
           git checkout master
           git merge --no-ff test -m "Merging test branch into master after successful tests"
+          if [ $? -ne 0 ]; then
+            echo "Merge failed"
+            exit 1
+          fi
           git push origin master
-
-      - name: Trigger Jenkins job for deployment
-        run: |
-          curl -X POST "http://localhost:8080//job/shoe-price-predictions/build" \
-          --user "admin:${{ secrets.JENKINS_TOKEN }}"
+          if [ $? -ne 0 ]; then
+            echo "Push failed"
+            exit 1
+          fi
