@@ -36,6 +36,11 @@ jobs:
     if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'test'
     runs-on: ubuntu-latest
     steps:
+      - name: Debug event payload
+        run: |
+          echo "Event payload:"
+          echo "${{ toJson(github.event) }}"
+
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
