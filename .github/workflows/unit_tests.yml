@@ -1,4 +1,4 @@
-name: Unit Tests and Feature Testing
+name: Unit Tests, Merge & Deploy
 
 on:
   pull_request:
@@ -27,3 +27,25 @@ jobs:
 
       - name: Run unit tests
         run: pytest test.py
+
+  merge-to-master:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.NOTGITHUB_TOKEN }}  # Make sure this secret exists in GitHub
+
+      - name: Merge test into master
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git checkout master
+          git merge --no-ff test -m "Merging test branch into master after successful tests"
+          git push origin master
+
+      - name: Trigger Jenkins job for deployment
+        run: |
+          curl -X POST "http://localhost:8080/job/shoe-price-predictions/build" \
+          --user "admin:${{ secrets.JENKINS_TOKEN }}" 
