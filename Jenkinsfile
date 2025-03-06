@@ -49,6 +49,19 @@ pipeline {
     post {
         success {
             echo "✅ Build and Deployment Successful!"
+            
+            emailext subject: "✅ Deployment Successful: Shoe Price Predictions",
+                     body: """
+                     Hello Admin,
+
+                     The deployment of Shoe Price Predictions has been successfully completed.
+
+                     Regards,  
+                     Jenkins
+                     """,
+                     to: "siddiqabubakar954@gmail.com",
+                     from: "wahidimahrukh@gmail.com",
+                     replyTo: "wahidimahrukh@gmail.com"
         }
         failure {
             echo "❌ Build Failed. Check logs for details."
