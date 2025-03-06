@@ -1,4 +1,4 @@
-name: Flake8 Code Quality Check & Auto Merge to Test
+name: Flake8 Code Quality Check
 
 on:
   pull_request:
@@ -14,8 +14,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # Ensures full repo history for merging
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -33,24 +31,5 @@ jobs:
             echo "$output"
             exit 1
           else
-            echo "✅ No quality errors found."
-      
-  merge-to-test:
-    needs: flake8
-    if: success()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.PAT_TOKEN }}
-          fetch-depth: 0
-
-      - name: Merge Dev into Test
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git checkout test
-          git pull origin test
-          git merge --no-ff dev -m "Merging dev into test after passing Flake8"
-          git push origin test
+            echo "No quality errors found."
+          fi
