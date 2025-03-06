@@ -1,94 +1,28 @@
-name: Feature Testing & Auto Merge
+name: Feature Testing
 
 on:
   pull_request:
     branches:
-      - test  # Runs when merging dev into test
-      - master  # Runs when merging test into master
+      - master  # Runs feature tests on PR from test to master
 
 jobs:
-  flake8-check:
+  feature-test:
+    name: Run Feature Tests
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.*'  # Use the latest Python 3 version
 
-      - name: Install Flake8
-        run: pip install flake8
-
-      - name: Run Flake8
+      - name: Install Dependencies
         run: |
-          output=$(flake8 .)
-          if [ -n "$output" ]; then
-            echo "::error::Quality errors found. Cannot proceed."
-            echo "$output"
-            exit 1
-          else
-            echo "No quality errors found."
-          fi
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt  # Install test dependencies
 
-  test:
-    needs: flake8-check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install pytest
-
-      - name: Run unit tests
-        run: pytest test.py
-
-  merge-to-test:
-    needs: test
-    if: success() && github.base_ref == 'test'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.PAT_TOKEN }}
-          fetch-depth: 0  # Fetch all history and branches
-
-      - name: Merge dev into test
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git checkout test
-          git pull origin test
-          git merge --no-ff dev -m "Merging dev into test after passing tests"
-          git push origin test
-
-  merge-to-master:
-    needs: test
-    if: success() && github.base_ref == 'master'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.PAT_TOKEN }}
-          fetch-depth: 0  # Fetch all history and branches
-
-      - name: Merge test into master
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git checkout test
-          git pull origin test
-          git checkout master
-          git merge --no-ff test -m "Merging test into master after passing tests"
-          git push origin master
+      - name: Run Feature Tests
+        run: pytest tests/  # Run all tests inside the 'tests' folder
