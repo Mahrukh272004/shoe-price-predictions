@@ -1,12 +1,9 @@
-name: Unit Tests and Merge to Master
+name: Feature Testing & Auto Merge
 
 on:
   pull_request:
     branches:
-      - test
-  push:
-    branches:
-      - test
+      - test  # Runs when merging dev into test
 
 jobs:
   test:
@@ -23,44 +20,28 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          pip install pytest  # Install pytest explicitly
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            pip install pywin32==308
-          fi
+          pip install pytest
 
       - name: Run unit tests
         run: pytest test.py
 
   merge-to-master:
     needs: test
-    if: github.event.pull_request.merged == true || github.event.pull_request.base.ref == 'test'
+    if: success()
     runs-on: ubuntu-latest
     steps:
-      - name: Debug event payload
-        run: |
-          echo "Event payload:"
-          echo "${{ toJson(github.event) }}"
-
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.NOTGITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0  # Fetch all history and branches
 
       - name: Merge test into master
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git fetch origin test  # Fetch the test branch
-          git checkout test      # Check out the test branch
-          git checkout master    # Switch back to master
-          git merge --no-ff test -m "Merging test branch into master after successful tests"
-          if [ $? -ne 0 ]; then
-            echo "Merge failed"
-            exit 1
-          fi
+          git checkout test
+          git pull origin test
+          git checkout master
+          git merge --no-ff test -m "Merging test into master after passing tests"
           git push origin master
-          if [ $? -ne 0 ]; then
-            echo "Push failed"
-            exit 1
-          fi
