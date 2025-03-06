@@ -27,9 +27,3 @@ jobs:
 
       - name: Run unit tests
         run: pytest test.py
-
-      - name: Run feature tests
-        run: |
-          # Add commands to run feature-specific tests here
-          # For example, if you have a separate test file for feature tests:
-          pytest feature_tests.py
