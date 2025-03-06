@@ -1,4 +1,4 @@
-name: Feature Testing & Auto Merge to Master
+name: Feature Testing & Auto Merge
 
 on:
   pull_request:
