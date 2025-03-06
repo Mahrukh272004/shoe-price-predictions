@@ -1,4 +1,4 @@
-name: Unit Tests, Merge & Deploy
+name: Unit Tests, Merge to Master & Trigger Jenkins
 
 on:
   pull_request:
@@ -35,18 +35,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.NOTGITHUB_TOKEN }}  # Make sure this secret exists in GitHub
+          token: ${{ secrets.NOTGITHUB_TOKEN }}  # Ensure this secret exists in GitHub
 
-      - name: Merge test into dev
+      - name: Merge test into master
         run: |
-            git config --global user.name "GitHub Actions"
-            git config --global user.email "actions@github.com"
-            git checkout dev
-            git merge --no-ff test -m "Merging test branch into dev after successful tests"
-            git push origin dev
-        
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git checkout master
+          git merge --no-ff test -m "Merging test branch into master after successful tests"
+          git push origin master
 
       - name: Trigger Jenkins job for deployment
         run: |
-          curl -X POST "http://localhost:8080/job/shoe-price-predictions/build" \
-          --user "admin:${{ secrets.JENKINS_TOKEN }}" 
+          curl -X POST "http://localhost:8080//job/shoe-price-predictions/build" \
+          --user "admin:${{ secrets.JENKINS_TOKEN }}"
