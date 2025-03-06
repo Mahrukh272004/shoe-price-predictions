@@ -44,7 +44,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.NOTGITHUB_TOKEN }}
           fetch-depth: 0  # Fetch all history and branches
 
       - name: Merge test into master
