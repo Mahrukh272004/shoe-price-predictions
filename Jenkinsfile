@@ -2,39 +2,23 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HUB_REPO = "wahidimahrukh/shoe-price-predictions"
-        DOCKER_HUB_CREDENTIALS = "docker-hub-credentials"
+        DOCKER_HUB_USERNAME = credentials('docker-hub-credentials') // Fetch Docker Hub credentials
     }
 
     stages {
-        stage('Checkout Code') {
-            steps {
-                git branch: 'master', url: 'https://github.com/Mahrukh272004/shoe-price-predictions.git'
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh "docker build -t $DOCKER_HUB_REPO:latest ."
+                    sh "docker build -t $DOCKER_HUB_USERNAME/shoe-price-predictions:latest ."
                 }
             }
         }
 
-        stage('Push Image to Docker Hub') {
+        stage('Push to Docker Hub') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_HUB_CREDENTIALS) {
-                        sh "docker push $DOCKER_HUB_REPO:latest"
-                    }
-                }
-            }
-        }
-
-        stage('Deploy Container') {
-            steps {
-                script {
-                    sh "docker run -d --name shoe-app -p 5000:5000 $DOCKER_HUB_REPO:latest"
+                    sh "echo ${DOCKER_HUB_PASSWORD} | docker login -u ${DOCKER_HUB_USERNAME} --password-stdin"
+                    sh "docker push $DOCKER_HUB_USERNAME/shoe-price-predictions:latest"
                 }
             }
         }
