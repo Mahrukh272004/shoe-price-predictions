@@ -1,0 +1,29 @@
+name: Merge `test` into `master` on Successful Tests
+
+on:
+  workflow_run:
+    workflows: ["Automated Testing on PR"]  
+    types:
+      - completed
+
+permissions:
+  contents: write  # Allow GitHub Actions to push changes
+
+jobs:
+  merge:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PAT_TOKEN }}  # Use the personal access token
+
+      - name: Merge `test` into `master`
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git fetch origin
+          git checkout master
+          git merge --no-ff origin/test -m "Auto-merged from test to master"
+          git push https://${{ secrets.PAT_TOKEN }}@github.com/Mahrukh272004/shoe-price-predictions.git master
